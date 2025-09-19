@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Restaurant Management System - Login/Register</title>
+  <style>
+    /* Reset */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Background Slideshow */
+    .slideshow {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+    }
+
+    .slideshow img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      position: absolute;
+      opacity: 0;
+      animation: slideShow 48s infinite;
+      filter: brightness(65%);
+    }
+
+    .slideshow img:nth-child(1) { animation-delay: 0s; }
+    .slideshow img:nth-child(2) { animation-delay: 6s; }
+    .slideshow img:nth-child(3) { animation-delay: 12s; }
+    .slideshow img:nth-child(4) { animation-delay: 18s; }
+    .slideshow img:nth-child(5) { animation-delay: 24s; }
+    .slideshow img:nth-child(6) { animation-delay: 30s; }
+    .slideshow img:nth-child(7) { animation-delay: 36s; }
+    .slideshow img:nth-child(8) { animation-delay: 42s; }
+
+    @keyframes slideShow {
+      0% { opacity: 0; }
+      10% { opacity: 0.8; }
+      25% { opacity: 0.8; }
+      35% { opacity: 0; }
+      100% { opacity: 0; }
+    }
+
+    /* Form Card */
+    .form-container {
+      background: rgba(255, 255, 255, 0.95);
+      padding: 35px;
+      width: 380px;
+      border-radius: 18px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+      text-align: center;
+      backdrop-filter: blur(5px);
+      transition: all 0.3s ease;
+    }
+
+    .form-container h2 {
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    .form-container input {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      outline: none;
+      font-size: 15px;
+      background: #f9f9f9;
+    }
+
+    .form-container input:focus {
+      border-color: #FF9800;
+      background: #fff;
+    }
+
+    .form-container button {
+      width: 100%;
+      padding: 12px;
+      background: #FF9800;
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+      transition: 0.3s ease;
+    }
+
+    .form-container button:hover {
+      background: #e68900;
+    }
+
+    .form-container p {
+      margin-top: 15px;
+      font-size: 14px;
+      color: #444;
+    }
+
+    .form-container a {
+      color: #FF9800;
+      text-decoration: none;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .error {
+      color: red;
+      font-size: 13px;
+      margin-top: 5px;
+      display: none;
+    }
+
+    /* Hide forms */
+    .hidden { display: none; }
+
+    @media (max-width: 480px) {
+      .form-container {
+        width: 90%;
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Background Slideshow -->
+  <div class="slideshow">
+    <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1600&q=80" alt="Restaurant Dish">
+    <img src="https://images.unsplash.com/photo-1600891963937-c9e7c7e0f7ef?auto=format&fit=crop&w=1600&q=80" alt="Fine Dining">
+    <img src="https://images.unsplash.com/photo-1541544741938-0af808871cc0?auto=format&fit=crop&w=1600&q=80" alt="Food Spread">
+    <img src="https://images.unsplash.com/photo-1529042410759-befb1204b468?auto=format&fit=crop&w=1600&q=80" alt="Restaurant Interior">
+    <img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1600&q=80" alt="Family Dinner">
+    <img src="https://images.unsplash.com/photo-1606788075761-672f82fd9d1f?auto=format&fit=crop&w=1600&q=80" alt="Group Dining">
+    <img src="https://images.unsplash.com/photo-1559339352-11d35a3a3d0d?auto=format&fit=crop&w=1600&q=80" alt="Dining with Friends">
+    <img src="https://images.unsplash.com/photo-1529042410759-befb1204b468?auto=format&fit=crop&w=1600&q=80" alt="Family in Restaurant">
+  </div>
+
+  <!-- Login Form -->
+  <div class="form-container" id="loginForm">
+    <h2>🍽 Restaurant Login</h2>
+    <form>
+      <input type="email" id="loginEmail" placeholder="Enter Email" required />
+      <span class="error" id="loginEmailError">Please enter a valid email.</span>
+
+      <input type="password" id="loginPassword" placeholder="Enter Password" required minlength="8"/>
+      <span class="error" id="loginPasswordError">Password must be at least 8 characters.</span>
+
+      <button type="submit">Login</button>
+    </form>
+    <p>New user? <a id="showRegister">Register here</a></p>
+  </div>
+
+  <!-- Register Form -->
+  <div class="form-container hidden" id="registerForm">
+    <h2>📝 Register Account</h2>
+    <form>
+      <input type="text" id="regName" placeholder="Full Name" required />
+      <input type="email" id="regEmail" placeholder="Email Address" required />
+      <span class="error" id="regEmailError">Please enter a valid email.</span>
+
+      <input type="text" id="regMobile" placeholder="Mobile Number" required pattern="[0-9]{10}" />
+      <span class="error" id="regMobileError">Enter a valid 10-digit mobile number.</span>
+
+      <input type="date" id="regDob" required />
+      <span class="error" id="regDobError">Please enter your date of birth.</span>
+
+      <input type="password" id="regPassword" placeholder="Password (min 8 chars)" required minlength="6"/>
+      <span class="error" id="regPasswordError">Password must be at least 8 characters.</span>
+
+      <input type="password" id="regConfirmPassword" placeholder="Confirm Password" required minlength="8"/>
+      <span class="error" id="regConfirmPasswordError">Passwords do not match.</span>
+
+      <button type="submit">Register</button>
+    </form>
+    <p>Already have an account? <a id="showLogin">Login here</a></p>
+  </div>
+
+  <script>
+    // Switch between login and register
+    const loginForm = document.getElementById('loginForm');
+    const registerForm = document.getElementById('registerForm');
+    const showRegister = document.getElementById('showRegister');
+    const showLogin = document.getElementById('showLogin');
+
+    showRegister.addEventListener('click', () => {
+      loginForm.classList.add('hidden');
+      registerForm.classList.remove('hidden');
+    });
+
+    showLogin.addEventListener('click', () => {
+      registerForm.classList.add('hidden');
+      loginForm.classList.remove('hidden');
+    });
+
+    // Login validation
+    document.querySelector("#loginForm form").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const email = document.getElementById("loginEmail");
+      const password = document.getElementById("loginPassword");
+      const emailError = document.getElementById("loginEmailError");
+      const passwordError = document.getElementById("loginPasswordError");
+      let valid = true;
+
+      const emailPattern = /^[^ ]+@[^ ]+\.[a-z]{2,3}$/;
+      if (!email.value.match(emailPattern)) {
+        emailError.style.display = "block";
+        valid = false;
+      } else { emailError.style.display = "none"; }
+
+      if (password.value.length < 6) {
+        passwordError.style.display = "block";
+        valid = false;
+      } else { passwordError.style.display = "none"; }
+
+      if (valid) alert("Login Successful!");
+    });
+
+    // Register validation
+    document.querySelector("#registerForm form").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const email = document.getElementById("regEmail");
+      const mobile = document.getElementById("regMobile");
+      const dob = document.getElementById("regDob");
+      const password = document.getElementById("regPassword");
+      const confirmPassword = document.getElementById("regConfirmPassword");
+
+      const emailError = document.getElementById("regEmailError");
+      const mobileError = document.getElementById("regMobileError");
+      const dobError = document.getElementById("regDobError");
+      const passwordError = document.getElementById("regPasswordError");
+      const confirmPasswordError = document.getElementById("regConfirmPasswordError");
+
+      let valid = true;
+      const emailPattern = /^[^ ]+@[^ ]+\.[a-z]{2,3}$/;
+
+      if (!email.value.match(emailPattern)) {
+        emailError.style.display = "block";
+        valid = false;
+      } else { emailError.style.display = "none"; }
+
+      if (!mobile.value.match(/^[0-9]{10}$/)) {
+        mobileError.style.display = "block";
+        valid = false;
+      } else { mobileError.style.display = "none"; }
+
+      if (!dob.value) {
+        dobError.style.display = "block";
+        valid = false;
+      } else { dobError.style.display = "none"; }
+
+      if (password.value.length < 8) {
+        passwordError.style.display = "block";
+        valid = false;
+      } else { passwordError.style.display = "none"; }
+
+      if (confirmPassword.value !== password.value) {
+        confirmPasswordError.style.display = "block";
+        valid = false;
+      } else { confirmPasswordError.style.display = "none"; }
+
+      if (valid) alert("Registration Successful!");
+    });
+  </script>
+
+</body>
+</html>
