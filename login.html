@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Restaurant Menu</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f4f6fb;
+      color: #333;
+    }
+
+    .menu-section {
+      margin: 30px auto;
+      max-width: 1100px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      padding: 20px;
+    }
+
+    .menu-header {
+      background: #2d3a8c;
+      color: white;
+      padding: 12px 18px;
+      border-radius: 8px;
+      font-size: 20px;
+      font-weight: bold;
+      margin-bottom: 20px;
+    }
+
+    .food-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 20px;
+    }
+
+    .food-card {
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      overflow: hidden;
+      transition: transform 0.2s;
+    }
+    .food-card:hover {
+      transform: translateY(-5px);
+    }
+    .food-card img {
+      width: 100%;
+      height: 160px;
+      object-fit: cover;
+    }
+    .food-info {
+      padding: 12px;
+      text-align: left;
+    }
+    .food-info h3 {
+      font-size: 16px;
+      margin: 0;
+      color: #2d3a8c;
+    }
+    .food-info p {
+      font-size: 13px;
+      color: #555;
+      margin: 6px 0;
+    }
+    .food-price {
+      font-weight: bold;
+      color: #e63946;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Punjabi Section -->
+  <div class="menu-section">
+    <div class="menu-header">Punjabi Specials</div>
+    <div class="food-container">
+      <div class="food-card">
+        <img src="https://images.unsplash.com/photo-1604909052922-5a26e8e7c25d" alt="Butter Chicken">
+        <div class="food-info">
+          <h3>Butter Chicken (250g)</h3>
+          <p>Creamy tomato-based curry with tender chicken.</p>
+          <div class="food-price">₹250</div>
+        </div>
+      </div>
+      <div class="food-card">
+        <img src="https://images.unsplash.com/photo-1627308595229-7830a5c91f9f" alt="Paneer Tikka">
+        <div class="food-info">
+          <h3>Paneer Tikka (200g)</h3>
+          <p>Grilled paneer cubes marinated in spices.</p>
+          <div class="food-price">₹180</div>
+        </div>
+      </div>
+      <div class="food-card">
+        <img src="https://images.unsplash.com/photo-1617196038435-cf05f5a8e299" alt="Kulcha">
+        <div class="food-info">
+          <h3>Amritsari Kulcha (150g)</h3>
+          <p>Stuffed bread with potato and spices.</p>
+          <div class="food-price">₹120</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chinese Section -->
+  <div class="menu-section">
+    <div class="menu-header">Chinese Delights</div>
+    <div class="food-container">
+      <div class="food-card">
+        <img src="https://images.unsplash.com/photo-1625941351841-99532956543c" alt="Noodles">
+        <div class="food-info">
+          <h3>Hakka Noodles (200g)</h3>
+          <p>Stir-fried noodles with vegetables.</p>
+          <div class="food-price">₹150</div>
+        </div>
+      </div>
+      <div class="food-card">
+        <img src="https://images.unsplash.com/photo-1606971300653-2b6d807e2520" alt="Manchurian">
+        <div class="food-info">
+          <h3>Veg Manchurian (180g)</h3>
+          <p>Fried veggie balls in tangy sauce.</p>
+          <div class="food-price">₹170</div>
+        </div>
+      </div>
+      <div class="food-card">
+        <img src="https://images.unsplash.com/photo-1617196038435-cf05f5a8e299" alt="Spring Rolls">
+        <div class="food-info">
+          <h3>Spring Rolls (120g)</h3>
+          <p>Crispy rolls stuffed with veggies.</p>
+          <div class="food-price">₹100</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dessert Section -->
+  <div class="menu-section">
+    <div class="menu-header">Desserts</div>
+    <div class="food-container">
+      <div class="food-card">
+        <img src="https://images.unsplash.com/photo-1578985545062-69928b1d9587" alt="Gulab Jamun">
+        <div class="food-info">
+          <h3>Gulab Jamun (100g)</h3>
+          <p>Sweet fried dumplings in sugar syrup.</p>
+          <div class="food-price">₹60</div>
+        </div>
+      </div>
+      <div class="food-card">
+        <img src="https://images.unsplash.com/photo-1627308595229-7830a5c91f9f" alt="Rasgulla">
+        <div class="food-info">
+          <h3>Rasgulla (100g)</h3>
+          <p>Spongy cheese balls soaked in syrup.</p>
+          <div class="food-price">₹70</div>
+        </div>
+      </div>
+      <div class="food-card">
+        <img src="https://images.unsplash.com/photo-1505253758473-96b7015fcd40" alt="Ice Cream">
+        <div class="food-info">
+          <h3>Ice Cream Sundae (150g)</h3>
+          <p>Layers of ice cream with toppings.</p>
+          <div class="food-price">₹120</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
