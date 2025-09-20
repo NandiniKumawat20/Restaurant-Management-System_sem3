@@ -160,8 +160,8 @@
       <input type="email" id="loginEmail" placeholder="Enter Email" required />
       <span class="error" id="loginEmailError">Please enter a valid email.</span>
 
-      <input type="password" id="loginPassword" placeholder="Enter Password" required minlength="8"/>
-      <span class="error" id="loginPasswordError">Password must be at least 8 characters.</span>
+      <input type="password" id="loginPassword" placeholder="Enter Password" required minlength="6"/>
+      <span class="error" id="loginPasswordError">Password must be at least 6 characters.</span>
 
       <button type="submit">Login</button>
     </form>
@@ -182,10 +182,10 @@
       <input type="date" id="regDob" required />
       <span class="error" id="regDobError">Please enter your date of birth.</span>
 
-      <input type="password" id="regPassword" placeholder="Password (min 8 chars)" required minlength="6"/>
-      <span class="error" id="regPasswordError">Password must be at least 8 characters.</span>
+      <input type="password" id="regPassword" placeholder="Password (min 6 chars)" required minlength="6"/>
+      <span class="error" id="regPasswordError">Password must be at least 6 characters.</span>
 
-      <input type="password" id="regConfirmPassword" placeholder="Confirm Password" required minlength="8"/>
+      <input type="password" id="regConfirmPassword" placeholder="Confirm Password" required minlength="6"/>
       <span class="error" id="regConfirmPasswordError">Passwords do not match.</span>
 
       <button type="submit">Register</button>
@@ -230,7 +230,11 @@
         valid = false;
       } else { passwordError.style.display = "none"; }
 
-      if (valid) alert("Login Successful!");
+    if (valid) {
+  alert("Login Successful!");
+  window.location.href = "main.html";
+}
+    
     });
 
     // Register validation
@@ -266,7 +270,7 @@
         valid = false;
       } else { dobError.style.display = "none"; }
 
-      if (password.value.length < 8) {
+      if (password.value.length < 6) {
         passwordError.style.display = "block";
         valid = false;
       } else { passwordError.style.display = "none"; }
