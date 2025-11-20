@@ -1,0 +1,942 @@
+<!doctype html>
+<html lang="en">
+<head>
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Restaurant Management System</title>
+  <style>
+    :root{
+      --bg:#071022;
+      --card:#0b1220;
+      --muted:#9aa4b2;
+      --accent:#ff6b35;
+      --radius:12px;
+      font-family: Inter, Arial, sans-serif;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:linear-gradient(180deg,#071022 0%,#081627 100%);
+      color:#e6eef6;
+    }
+    .active-tab {
+      background-color: #ff5722; /* New color for active tab */
+      color: #fff;
+    }
+
+    .container{
+      width:95%;
+      max-width:980px;
+      background:var(--card);
+      border-radius:var(--radius);
+      padding:20px;
+      box-shadow:0 10px 30px rgba(0,0,0,0.6);
+    }
+
+    h1,h2,h3{color:var(--accent); margin:6px 0 16px; text-align:center;}
+    .top-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+    .flex{display:flex;gap:12px;align-items:center;}
+    .left, .right{flex:1}
+
+    /* login/register */
+    .panel { background:#071326; padding:16px; border-radius:10px; max-width:480px; margin:0 auto; }
+    label{display:block;color:var(--muted); font-size:13px; margin-bottom:6px}
+    input, select, textarea, button { width:100%; padding:10px; border-radius:8px; border:1px solid rgba(255,255,255,0.06); background:transparent; color:#fff }
+    textarea{min-height:80px; resize:vertical}
+    .btn{background:var(--accent); border:none; color:#fff; cursor:pointer; font-weight:700}
+    .btn.secondary{background:#374151}
+    .small{padding:8px;font-size:14px}
+
+    /* dashboards */
+    .dash-grid{display:flex; gap:18px; flex-wrap:wrap;}
+    .menu-bar{display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin-bottom:14px}
+    .menu-item{background:#0f1a2b;padding:10px 14px;border-radius:10px;cursor:pointer;text-align:center;width:140px}
+    .menu-item img{width:44px;height:44px;display:block;margin:0 auto 8px;border-radius:8px}
+    .content{background:#071a2b;padding:14px;border-radius:10px; color:#e6eef6}
+
+    table{width:100%;border-collapse:collapse;margin-top:10px}
+    th, td{padding:10px;border-bottom:1px solid rgba(255,255,255,0.03); text-align:left}
+    th{color:var(--accent)}
+
+    .list-rest { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px; }
+    .rest-card { background:#0f1a2b;padding:10px;border-radius:10px; display:flex; gap:10px; align-items:center; cursor:pointer; }
+    .rest-card img { width:64px;height:64px;border-radius:8px; object-fit:cover }
+    .right-col { text-align:right; }
+
+    .back { margin-top:14px; background:#374151; }
+    .search-row { display:flex; gap:8px; align-items:center; margin-bottom:12px; }
+    .search-row input, .search-row select { width:auto; min-width:160px; }
+    @media (max-width:700px){ .menu-item{width:110px} .rest-card{flex-direction:column; align-items:flex-start} .right-col{ text-align:left } .search-row{flex-direction:column;align-items:stretch} }
+  </style>
+</head>
+<body>
+  <div class="container" id="app">
+
+    <!-- top header -->
+    <div class="top-row">
+      <div><h1>Spice & Flavor — Demo</h1></div>
+      <div id="top-actions" class="flex"></div>
+    </div>
+    
+    
+
+
+    <!-- LOGIN / REGISTER -->
+    <div id="auth-area" class="panel">
+      <div id="login-view">
+        <h2>Login</h2>
+        <label>Email</label><input id="login-email" placeholder="you@example.com" autocomplete="username">
+        <label>Password</label><input id="login-password" type="password" placeholder="password" autocomplete="current-password">
+        <div style="display:flex;gap:10px;margin-top:10px">
+          <button class="btn" id="login-btn">Login</button>
+          <button class="btn secondary" id="show-register">Register</button>
+        </div>
+        <p style="color:var(--muted); margin-top:10px; font-size:13px">Registering a restaurant will allow management features. Registering as a user will allow browsing restaurants.</p>
+      </div>
+
+      <div id="register-view" style="display:none;">
+        <h2>Register</h2>
+        <label>Account Type</label>
+        <select id="reg-type">
+          <option value="user">User</option>
+          <option value="restaurant">Restaurant</option>
+        </select>
+        <label>Name</label><input id="reg-name" placeholder="Your name / Restaurant name" autocomplete="name">
+        <label>Email</label><input id="reg-email" placeholder="you@example.com" autocomplete="email">
+        <label>Password</label><input id="reg-password" type="password" autocomplete="new-password">
+        <label>Confirm Password</label><input id="reg-confirm" type="password" autocomplete="new-password">
+        <div style="display:flex;gap:10px;margin-top:10px">
+          <button class="btn" id="register-btn">Register</button>
+          <button class="btn secondary" id="show-login">Back to Login</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESTAURANT DASHBOARD (for restaurant accounts) -->
+    <div id="restaurant-dashboard" style="display:none">
+      <div class="top-row">
+        <div><h2 id="rest-title">Restaurant Dashboard</h2></div>
+        <div class="right-col">
+          <button class="btn small" id="rest-home-btn">Dashboard Home</button>
+          <button class="btn small secondary" id="rest-logout">Logout</button>
+        </div>
+      </div>
+
+      <div class="menu-bar" id="rest-menu">
+        <div class="menu-item" data-sec="manage-menu"><img src="https://cdn-icons-png.flaticon.com/512/2921/2921820.png"><div>Menu</div></div>
+        <div class="menu-item" data-sec="manage-tables"><img src="https://cdn-icons-png.flaticon.com/512/1046/1046784.png"><div>Tables</div></div>
+        <div class="menu-item" data-sec="manage-income"><img src="https://cdn-icons-png.flaticon.com/512/1170/1170678.png"><div>Income</div></div>
+        <div class="menu-item" data-sec="manage-feedback"><img src="https://cdn-icons-png.flaticon.com/512/2462/2462719.png"><div>Feedback</div></div>
+      </div>
+
+      <div class="content" id="rest-content">
+        <h3>Welcome — manage your restaurant from here</h3>
+        <p style="color:var(--muted)">Choose one of the tiles above to add menu items, tables, view income and customer feedback.</p>
+      </div>
+    </div>
+
+    <!-- USER DASHBOARD -->
+    <div id="user-dashboard" style="display:none">
+      <div class="top-row">
+        <div><h2 id="user-title">User Panel</h2></div>
+        <div class="right-col">
+          <button class="btn small" id="user-home-btn">Home</button>
+          <button class="btn small secondary" id="user-logout-btn">Logout</button>
+        </div>
+      </div>
+
+      <div class="content" id="user-content">
+        <h3>Choose a restaurant to visit</h3>
+        <!-- Search controls will be injected here -->
+        <div id="restaurant-list" class="list-rest" style="margin-top:12px;"></div>
+      </div>
+    </div>
+
+  </div>
+
+<script>
+/* ======= Utility / storage helpers ======= */
+const STORAGE_KEY_RESTAURANTS = 'rms_restaurants';
+const STORAGE_KEY_ACCOUNTS = 'rms_accounts'; // accounts: {id,email,pass,type,name,restaurantId?}
+
+function loadRestaurants(){
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY_RESTAURANTS) || '[]'); }
+  catch(e){ return []; }
+}
+function saveRestaurants(arr){ localStorage.setItem(STORAGE_KEY_RESTAURANTS, JSON.stringify(arr)); }
+
+function loadAccounts(){
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY_ACCOUNTS) || '[]'); }
+  catch(e){ return []; }
+}
+function saveAccounts(arr){ localStorage.setItem(STORAGE_KEY_ACCOUNTS, JSON.stringify(arr)); }
+
+function uid(prefix='id'){ return prefix + '_' + Math.random().toString(36).slice(2,9); }
+
+/* ======= App state ======= */
+let restaurants = loadRestaurants(); // each: {id,name,email,logo,menu:[],tables:[],bookings:[],incomes:[],feedback:[]}
+let accounts = loadAccounts();       // each: {id,email,pass,type,name,restaurantId?}
+let currentAccount = null;          // account object when logged in
+let currentRestaurantId = null;     // when user visits a restaurant
+
+/* ======= DOM refs ======= */
+const authArea = document.getElementById('auth-area');
+const loginView = document.getElementById('login-view');
+const registerView = document.getElementById('register-view');
+
+const restaurantDashboard = document.getElementById('restaurant-dashboard');
+const restContent = document.getElementById('rest-content');
+const restTitle = document.getElementById('rest-title');
+
+const userDashboard = document.getElementById('user-dashboard');
+const userContent = document.getElementById('user-content');
+const restaurantListEl = document.getElementById('restaurant-list');
+
+/* ======= Email validation helper ======= */
+function isValidEmail(email){
+  if(!email) return false;
+  // simple but effective RFC-ish pattern
+  const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return re.test(email);
+}
+
+/* ======= Auth UI handlers ======= */
+document.getElementById('show-register').addEventListener('click', e=>{
+  e.preventDefault();
+  loginView.style.display='none';
+  registerView.style.display='block';
+});
+document.getElementById('show-login').addEventListener('click', e=>{
+  e.preventDefault();
+  registerView.style.display='none';
+  loginView.style.display='block';
+});
+
+/* Registration: creates either user account or restaurant entry + account */
+document.getElementById('register-btn').addEventListener('click', ()=>{
+  const type = document.getElementById('reg-type').value;
+  const name = document.getElementById('reg-name').value.trim();
+  const email = document.getElementById('reg-email').value.trim().toLowerCase();
+  const pass = document.getElementById('reg-password').value;
+  const confirm = document.getElementById('reg-confirm').value;
+
+  if(!name || !email || !pass || !confirm){ alert('Fill all fields'); return; }
+  if(!isValidEmail(email)){ alert('Please enter a valid email address (e.g., you@example.com)'); return; }
+  if(pass !== confirm){ alert('Passwords do not match'); return; }
+
+  // check duplicate email
+  if(accounts.some(a=>a.email === email)){ alert('Email already used.'); return; }
+
+  if(type === 'restaurant'){
+    // create restaurant record and account referencing it
+    const restaurantId = uid('rest');
+    const newRest = {
+      id: restaurantId,
+      name,
+      email,
+      logo: `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=101827&color=fff`,
+      menu: [],        // {id,name,price,img}
+      tables: [],      // {num,status}
+      bookings: [],    // {tableNum,start,end,userName}
+      incomes: [],     // number array
+      feedback: []     // {userName,text,when}
+    };
+    restaurants.push(newRest);
+    saveRestaurants(restaurants);
+    // create account
+    const acc = { id: uid('acc'), email, pass, type:'restaurant', name, restaurantId };
+    accounts.push(acc);
+    saveAccounts(accounts);
+    alert('Restaurant registered successfully. You can now login.');
+    registerView.style.display='none';
+    loginView.style.display='block';
+  } else {
+    // user account
+    const acc = { id: uid('acc'), email, pass, type:'user', name };
+    accounts.push(acc);
+    saveAccounts(accounts);
+    alert('User registered successfully. You can now login.');
+    registerView.style.display='none';
+    loginView.style.display='block';
+  }
+});
+
+/* Login handler */
+document.getElementById('login-btn').addEventListener('click', ()=>{
+  const email = document.getElementById('login-email').value.trim().toLowerCase();
+  const pass = document.getElementById('login-password').value;
+  if(!email || !pass){ alert('Enter credentials'); return; }
+  if(!isValidEmail(email)){ alert('Please enter a valid email address (e.g., you@example.com)'); return; }
+  const acc = accounts.find(a => a.email === email && a.pass === pass);
+  if(!acc){ alert('Invalid credentials or no account found.'); return; }
+  currentAccount = acc;
+
+  // show appropriate dashboard
+  authArea.style.display = 'none';
+  if(acc.type === 'restaurant'){
+    loadRestaurantDashboard(acc.restaurantId);
+    restaurantDashboard.style.display = 'block';
+    restTitle.textContent = restaurants.find(r=>r.id===acc.restaurantId)?.name || acc.name;
+  } else {
+    // user: show list of restaurants
+    showRestaurantSelection();
+    userDashboard.style.display = 'block';
+    document.getElementById('user-title').textContent = `Welcome, ${acc.name}`;
+  }
+});
+
+/* Logout buttons */
+document.getElementById('rest-logout').addEventListener('click', ()=>{
+  currentAccount = null;
+  restaurantDashboard.style.display = 'none';
+  authArea.style.display = 'block';
+});
+document.getElementById('user-logout-btn').addEventListener('click', ()=>{
+  currentAccount = null;
+  userDashboard.style.display = 'none';
+  authArea.style.display = 'block';
+});
+
+/* Dashboard home buttons */
+document.getElementById('rest-home-btn').addEventListener('click', ()=>{
+  restContent.innerHTML = `<h3>Welcome — manage your restaurant</h3><p style="color:var(--muted)">Choose a tile above to manage menu, tables, income and view feedback.</p>`;
+});
+document.getElementById('user-home-btn').addEventListener('click', ()=>{
+  showRestaurantSelection();
+});
+
+/* ======= Restaurant dashboard actions (restaurant account) ======= */
+document.querySelectorAll('#rest-menu .menu-item').forEach(item=>{
+  item.addEventListener('click', ()=>{
+    const sec = item.getAttribute('data-sec');
+    if(sec === 'manage-menu' || sec === 'manage-menu'.replace('manage-','')) showManageMenu();
+    if(sec === 'manage-tables') showManageTables();
+    if(sec === 'manage-income') showManageIncome();
+    if(sec === 'manage-feedback') showManageFeedback();
+    // alternate mapping for older attribute naming
+    if(sec === 'manage-menu') showManageMenu();
+  });
+});
+
+/* Load restaurant dashboard data for current restaurant */
+function loadRestaurantDashboard(restaurantId){
+  restaurants = loadRestaurants();
+  const rest = restaurants.find(r => r.id === restaurantId);
+  if(!rest) {
+    restContent.innerHTML = `<p style="color:var(--muted)">Restaurant not found.</p>`;
+    return;
+  }
+  restContent.innerHTML = `<h3>Welcome — manage your restaurant</h3><p style="color:var(--muted)">Choose a tile above to add menu items, tables, income and see feedback.</p>`;
+}
+
+/* Manage Menu */
+function showManageMenu(){
+  restaurants = loadRestaurants();
+  const rest = restaurants.find(r => r.id === currentAccount.restaurantId);
+  if(!rest) return alert('Restaurant data missing');
+
+  restContent.innerHTML = `
+    <h3>Menu — ${rest.name}</h3>
+    <label>Dish name</label><input id="dish-name" placeholder="e.g., Masala Dosa">
+    <label>Price (₹)</label><input id="dish-price" type="number" placeholder="120">
+    <label>Image URL (optional)</label><input id="dish-img" placeholder="https://...">
+    <div style="display:flex;gap:8px;margin-top:10px">
+      <button class="btn" id="add-dish-btn">Add Dish</button>
+      <button class="btn secondary back" id="menu-back">Back</button>
+    </div>
+    <table>
+      <thead><tr><th>Dish</th><th>Price</th><th>Image</th><th>Action</th></tr></thead>
+      <tbody id="menu-table">
+        ${rest.menu.map(m=>`
+          <tr data-id="${m.id}">
+            <td>${m.name}</td>
+            <td>₹${m.price}</td>
+            <td><img src="${m.img||'https://via.placeholder.com/80'}" style="width:80px;height:50px;object-fit:cover;border-radius:6px"></td>
+            <td><button class="btn small delete-dish" data-id="${m.id}">Delete</button></td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+  `;
+
+  // Add Dish button
+  document.getElementById('add-dish-btn').addEventListener('click', ()=>{
+    const name = document.getElementById('dish-name').value.trim();
+    const price = Number(document.getElementById('dish-price').value.trim());
+    const img = document.getElementById('dish-img').value.trim() || '';
+
+    if(!name || !price) return alert('Enter name and price');
+    if(isNaN(price) || price <= 0) return alert('Price must be a positive number.');
+
+    const dish = { id: uid('dish'), name, price, img };
+    rest.menu.push(dish);
+    saveRestaurants(restaurants);
+    showManageMenu();
+  });
+
+  // Delete buttons
+  document.querySelectorAll('.delete-dish').forEach(btn => {
+    btn.addEventListener('click', ()=>{
+      const id = btn.getAttribute('data-id');
+      if(confirm('Are you sure you want to delete this dish?')){
+        rest.menu = rest.menu.filter(d => d.id !== id);
+        saveRestaurants(restaurants);
+        showManageMenu();
+      }
+    });
+  });
+
+  document.getElementById('menu-back').addEventListener('click', ()=>{
+    restContent.innerHTML = `<h3>Welcome — manage your restaurant</h3><p style="color:var(--muted)">Choose a tile above to add menu items, tables, income and see feedback.</p>`;
+  });
+}
+
+
+/* Manage Tables */
+function showManageTables(){
+  restaurants = loadRestaurants();
+  const restIndex = restaurants.findIndex(r => r.id === currentAccount.restaurantId);
+  if(restIndex === -1) return alert('Restaurant data missing');
+  const rest = restaurants[restIndex];
+
+  restContent.innerHTML = `
+    <h3>Tables — ${rest.name}</h3>
+    <label>Table number</label><input id="table-num" type="number" placeholder="e.g., 1">
+    <label>Status</label>
+    <select id="table-status"><option>Available</option><option>Booked</option><option>Occupied</option></select>
+    <div style="display:flex;gap:8px;margin-top:10px">
+      <button class="btn" id="add-table-btn">Add / Update Table</button>
+      <button class="btn secondary back" id="tables-back">Back</button>
+    </div>
+    <table>
+      <thead><tr><th>Table</th><th>Status</th><th>Action</th></tr></thead>
+      <tbody id="tables-list">
+        ${rest.tables.map(t=>`
+          <tr data-num="${t.num}">
+            <td>${t.num}</td>
+            <td>${t.status}</td>
+            <td><button class="btn small delete-table" data-num="${t.num}">Delete</button></td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+    <h4 style="margin-top:14px">Bookings</h4>
+    <table>
+      <thead><tr><th>Table</th><th>When</th><th>By</th></tr></thead>
+      <tbody>
+        ${(rest.bookings||[]).map(b=>`<tr><td>${b.tableNum}</td><td>${b.start} → ${b.end}</td><td>${b.userName}</td></tr>`).join('')}
+      </tbody>
+    </table>
+  `;
+
+  // Add / Update Table
+  document.getElementById('add-table-btn').addEventListener('click', ()=>{
+    const num = Number(document.getElementById('table-num').value.trim());
+    const status = document.getElementById('table-status').value;
+
+    if(isNaN(num) || num <= 0) return alert('Table number must be a positive number.');
+
+    const existingIndex = rest.tables.findIndex(t => t.num === num);
+    if(existingIndex !== -1){
+      rest.tables[existingIndex].status = status;
+    } else {
+      rest.tables.push({num, status});
+    }
+
+    restaurants[restIndex] = rest; // update in main array
+    saveRestaurants(restaurants);
+    showManageTables();
+  });
+
+  // Delete Table
+  document.querySelectorAll('.delete-table').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const num = Number(btn.getAttribute('data-num'));
+      if(confirm(`Are you sure you want to delete Table ${num}?`)){
+        rest.tables = rest.tables.filter(t => t.num !== num);
+        rest.bookings = (rest.bookings || []).filter(b => b.tableNum !== num);
+
+        restaurants[restIndex] = rest; // update in main array
+        saveRestaurants(restaurants);
+        showManageTables();
+      }
+    });
+  });
+
+  document.getElementById('tables-back').addEventListener('click', ()=>{
+    restContent.innerHTML = `<h3>Welcome — manage your restaurant</h3><p style="color:var(--muted)">Choose a tile above to add menu items, tables, income and see feedback.</p>`;
+  });
+}
+
+
+/* Manage Income */
+function showManageIncome(){
+  let restaurants = loadRestaurants();
+  const rest = restaurants.find(r => r.id === currentAccount.restaurantId);
+  if(!rest) return alert('Restaurant data missing');
+
+  rest.incomes = rest.incomes || [];
+
+  // Compute total
+  const total = rest.incomes.reduce((a,b)=> a + b.amount, 0);
+
+  // Build income list HTML
+  const incomeList = rest.incomes
+    .map((i, idx)=> `
+      <li style="display:flex;justify-content:space-between;align-items:center;margin:4px 0;padding:6px 8px;background:#f4f4f4;border-radius:6px">
+        <span>₹${i.amount} — <small>${i.date}</small></span>
+        <button class="btn secondary" data-del="${idx}" style="padding:3px 6px">X</button>
+      </li>
+    `)
+    .join('');
+
+  // Render panel
+  restContent.innerHTML = `
+    <h3>Manage Income — ${rest.name}</h3>
+
+    <label>Amount (₹)</label>
+    <input id="income-amt" type="number" placeholder="200">
+
+    <div style="display:flex;gap:8px;margin-top:10px">
+      <button class="btn" id="add-income-btn">Add Income</button>
+      <button class="btn secondary back" id="income-back">Back</button>
+    </div>
+
+    <h4 style="margin-top:15px">Total Income: ₹${total}</h4>
+    <ul style="margin-top:10px">${incomeList}</ul>
+  `;
+
+  // ➤ Add Income
+  document.getElementById('add-income-btn').addEventListener('click', ()=>{
+    const v = Number(document.getElementById('income-amt').value);
+    if(isNaN(v) || v <= 0) return alert('Enter a valid amount');
+
+    rest.incomes.push({
+      amount: v,
+      date: new Date().toLocaleDateString()
+    });
+
+    saveRestaurants(restaurants);
+    showManageIncome();
+  });
+
+  // ➤ Delete Income
+  document.querySelectorAll('[data-del]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const index = Number(btn.getAttribute('data-del'));
+      rest.incomes.splice(index, 1);
+
+      saveRestaurants(restaurants);
+      showManageIncome();
+    });
+  });
+
+  // ➤ Back Button
+  document.getElementById('income-back').addEventListener('click', ()=>{
+    restContent.innerHTML = `
+      <h3>Welcome — manage your restaurant</h3>
+      <p style="color:var(--muted)">
+        Choose a tile above to add menu items, tables, income and see feedback.
+      </p>
+    `;
+  });
+}
+
+/* Manage Feedback */
+function showManageFeedback(){
+  restaurants = loadRestaurants();
+  const rest = restaurants.find(r => r.id === currentAccount.restaurantId);
+  if(!rest) return alert('Restaurant data missing');
+
+  restContent.innerHTML = `
+    <h3>Feedback — ${rest.name}</h3>
+    <ul>${(rest.feedback || []).map(f=>`<li><strong>${escapeHtml(f.userName)}</strong> (${new Date(f.when).toLocaleString()}): ${escapeHtml(f.text)}</li>`).join('') || '<li>No feedback yet</li>'}</ul>
+    <button class="btn secondary back" id="feedback-back">Back</button>
+  `;
+  document.getElementById('feedback-back').addEventListener('click', ()=> {
+    restContent.innerHTML = `<h3>Welcome — manage your restaurant</h3><p style="color:var(--muted)">Choose a tile above to add menu items, tables, income and see feedback.</p>`;
+  });
+}
+
+/* ======= User flow: show list of restaurants to visit (with search & filter) ======= */
+function showRestaurantSelection(){
+  restaurants = loadRestaurants();
+
+  // render header with search & filter controls
+  userContent.innerHTML = `
+    <h3>Pick a restaurant to visit</h3>
+    <div class="search-row">
+      <input id="search-rest" placeholder="Search restaurants by name..." />
+      <select id="filter-min-dishes">
+        <option value="0">Any number of dishes</option>
+        <option value="1">At least 1 dish</option>
+        <option value="3">At least 3 dishes</option>
+        <option value="5">At least 5 dishes</option>
+      </select>
+      <button class="btn small" id="clear-filters">Clear</button>
+    </div>
+    <div id="rest-list-grid" class="list-rest"></div>
+  `;
+
+  const grid = document.getElementById('rest-list-grid');
+
+  function renderFiltered() {
+    const q = document.getElementById('search-rest').value.trim().toLowerCase();
+    const minD = Number(document.getElementById('filter-min-dishes').value || 0);
+    const filtered = restaurants.filter(r=>{
+      const matchesQ = !q || (r.name && r.name.toLowerCase().includes(q));
+      const dishes = (r.menu && r.menu.length) || 0;
+      const matchesMin = dishes >= minD;
+      return matchesQ && matchesMin;
+    });
+    if(!filtered.length){
+      grid.innerHTML = `<div style="padding:14px;color:var(--muted)">No restaurants match your search/filter.</div>`;
+      return;
+    }
+    grid.innerHTML = filtered.map(r => {
+      return `<div class="rest-card" data-rid="${r.id}">
+        <img src="${r.logo || 'https://ui-avatars.com/api/?name=R&background=101827&color=fff'}" alt="logo">
+        <div style="flex:1">
+          <div style="font-weight:700">${escapeHtml(r.name)}</div>
+          <div style="color:var(--muted);font-size:13px">${r.menu?.length||0} dishes · ${r.tables?.length||0} tables</div>
+        </div>
+        <div style="text-align:right">
+          <button class="btn small" data-visit="${r.id}">Visit</button>
+        </div>
+      </div>`;
+    }).join('');
+
+    // attach click handlers
+    grid.querySelectorAll('[data-visit]').forEach(btn=>{
+      btn.addEventListener('click', (e)=>{
+        const rid = btn.getAttribute('data-visit');
+        visitRestaurant(rid);
+      });
+    });
+  }
+
+  // initial render
+  renderFiltered();
+
+  // attach handlers for search & filter
+  document.getElementById('search-rest').addEventListener('input', renderFiltered);
+  document.getElementById('filter-min-dishes').addEventListener('change', renderFiltered);
+  document.getElementById('clear-filters').addEventListener('click', ()=>{
+    document.getElementById('search-rest').value = '';
+    document.getElementById('filter-min-dishes').value = '0';
+    renderFiltered();
+  });
+}
+
+function renderVisitOrders(rest){
+  const area = document.getElementById('visit-area');
+  const cart = sessionCart[rest.id] || [];
+  const total = cart.reduce((s,i)=>s + Number(i.price),0);
+
+  area.innerHTML = `
+    <h4>Your Order List — ${escapeHtml(rest.name)}</h4>
+    ${cart.length ? `
+      <ul id="order-list">
+        ${cart.map((c, idx)=>`
+          <li data-idx="${idx}" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+            <span>${escapeHtml(c.name)} — ₹${c.price} <small>(${new Date().toLocaleString()})</small></span>
+            <button class="btn small secondary delete-order-btn" data-idx="${idx}">Delete</button>
+          </li>
+        `).join('')}
+      </ul>
+      <p><strong>Total: ₹${total}</strong></p>
+      <div style="display:flex;gap:8px;margin-top:10px">
+        <button class="btn" id="confirm-order-btn">Confirm Order</button>
+        <button class="btn secondary" id="order-back-btn">Back</button>
+      </div>
+    ` : `<p style="color:var(--muted)">Your cart is empty.</p><button class="btn secondary" id="order-back-btn">Back</button>`}
+  `;
+
+  // Back button
+  document.getElementById('order-back-btn').addEventListener('click', ()=> visitRestaurant(rest.id));
+
+  // Confirm order
+  if(cart.length){
+    document.getElementById('confirm-order-btn').addEventListener('click', ()=>{
+      const restaurantsData = loadRestaurants();
+      const r = restaurantsData.find(rr=>rr.id===rest.id);
+      if(!r) return alert('Restaurant missing');
+      
+      r.bookings = r.bookings || [];
+      r.bookings.push({
+        type: 'Order',
+        items: [...cart],
+        total,
+        customer: currentAccount.name,
+        date: new Date().toLocaleString()
+      });
+
+      saveRestaurants(restaurantsData);
+
+      sessionCart[rest.id] = [];
+      alert('✅ Order confirmed!');
+      visitRestaurant(rest.id);
+    });
+
+    // Delete individual items
+    document.querySelectorAll('.delete-order-btn').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        const idx = Number(btn.getAttribute('data-idx'));
+        sessionCart[rest.id].splice(idx, 1); // remove item
+        renderVisitOrders(rest); // re-render the order list
+      });
+    });
+  }
+}
+
+
+function visitRestaurant(restaurantId){
+  currentRestaurantId = restaurantId;
+  restaurants = loadRestaurants();
+  const rest = restaurants.find(r => r.id === restaurantId);
+  if(!rest) return alert('Restaurant not found');
+
+  userContent.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div style="display:flex;gap:10px;align-items:center">
+        <img src="${rest.logo}" style="width:64px;height:64px;border-radius:8px;object-fit:cover">
+        <div>
+          <h3 style="margin:0">${escapeHtml(rest.name)}</h3>
+          <div style="color:var(--muted);font-size:13px">${rest.menu?.length||0} dishes · ${rest.tables?.length||0} tables</div>
+        </div>
+      </div>
+      <div style="text-align:right">
+        <button class="btn small" id="back-to-list">Back</button>
+      </div>
+    </div>
+
+    <div style="margin-top:12px" id="visit-tabs">
+      <div style="display:flex;gap:8px;margin-bottom:12px">
+        <button class="btn small active-tab" id="visit-menu-btn">Menu</button>
+        <button class="btn small secondary" id="visit-book-btn">Book Table</button>
+        <button class="btn small secondary" id="visit-pay-btn">Payment</button>
+        <button class="btn small secondary" id="visit-feedback-btn">Feedback</button>
+        <button class="btn small secondary" id="visit-order-btn">Your Order List</button>
+      </div>
+      <div id="visit-area" style="background:#071a2b;padding:12px;border-radius:8px"></div>
+    </div>
+  `;
+
+  const tabButtons = document.querySelectorAll('#visit-tabs .btn');
+  tabButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      tabButtons.forEach(b => b.classList.remove('active-tab'));
+      btn.classList.add('active-tab');
+    });
+  });
+
+  document.getElementById('back-to-list').addEventListener('click', ()=> showRestaurantSelection());
+  document.getElementById('visit-menu-btn').addEventListener('click', ()=> renderVisitMenu(rest));
+  document.getElementById('visit-book-btn').addEventListener('click', ()=> renderVisitBooking(rest));
+  document.getElementById('visit-pay-btn').addEventListener('click', ()=> renderVisitPayment(rest));
+  document.getElementById('visit-feedback-btn').addEventListener('click', ()=> renderVisitFeedback(rest));
+  document.getElementById('visit-order-btn').addEventListener('click', ()=> renderVisitOrders(rest));
+
+  // default show menu
+  renderVisitMenu(rest);
+}
+
+
+/* Render visit menu */
+function renderVisitMenu(rest){
+  const area = document.getElementById('visit-area');
+  area.innerHTML = '';
+  if(!rest.menu || !rest.menu.length){ area.innerHTML = `<p style="color:var(--muted)">No dishes yet.</p>`; return; }
+  const html = rest.menu.map(m=>{
+    const img = m.img || `https://source.unsplash.com/300x200/?food,${encodeURIComponent(m.name)}`;
+    return `<div style="display:flex;gap:12px;align-items:center;margin-bottom:12px">
+      <img src="${img}" style="width:120px;height:80px;object-fit:cover;border-radius:8px">
+      <div style="flex:1">
+        <div style="font-weight:700">${escapeHtml(m.name)}</div>
+        <div style="color:var(--muted)">₹${m.price}</div>
+      </div>
+      <div><button class="btn small" onclick="addToCart('${m.id}','${rest.id}')">Add</button></div>
+    </div>`;
+  }).join('');
+  area.innerHTML = html + `<div style="margin-top:12px"><button class="back btn secondary" id="visit-back">Back to restaurants</button></div>`;
+  document.getElementById('visit-back').addEventListener('click', ()=> showRestaurantSelection());
+
+  // simple cart is local per session - we won't implement full checkout here (simulate on Payment)
+}
+
+/* Add to cart simulated (stores in session variable) */
+const sessionCart = {}; // key = restaurantId -> array of {id,name,price}
+function addToCart(dishId, restaurantId){
+  const rest = restaurants.find(r=>r.id===restaurantId);
+  if(!rest) return alert('Restaurant not found');
+  const dish = rest.menu.find(m=>m.id===dishId);
+  if(!dish) return alert('Dish not found');
+  sessionCart[restaurantId] = sessionCart[restaurantId] || [];
+  sessionCart[restaurantId].push({id:dish.id, name:dish.name, price:dish.price});
+  alert(`Added ${dish.name} to cart`);
+}
+
+/* Render booking UI */
+function renderVisitBooking(rest){
+  const area = document.getElementById('visit-area');
+  const availableTables = (rest.tables||[]).filter(t=>t.status === 'Available' || t.status === 'Free' || !t.status);
+  if(!availableTables.length){
+    area.innerHTML = `<p style="color:var(--muted)">No available tables at the moment.</p><div style="margin-top:12px"><button class="back btn secondary" id="visit-back2">Back</button></div>`;
+    document.getElementById('visit-back2').addEventListener('click', ()=> showRestaurantSelection());
+    return;
+  }
+  area.innerHTML = `
+    <h4>Book a Table</h4>
+    <label>Select table</label>
+    <select id="select-table">${availableTables.map(t=>`<option value="${t.num}">Table ${t.num}</option>`).join('')}</select>
+    <label>Start time</label><input type="time" id="book-start">
+    <label>End time</label><input type="time" id="book-end">
+    <label>Your name</label><input id="book-name" placeholder="Your name">
+    <div style="display:flex;gap:8px;margin-top:10px">
+      <button class="btn" id="confirm-book">Confirm Booking</button>
+      <button class="btn secondary" id="booking-back">Back</button>
+    </div>
+  `;
+  document.getElementById('booking-back').addEventListener('click', ()=> visitRestaurant(rest.id));
+  document.getElementById('confirm-book').addEventListener('click', ()=>{
+    const tnum = document.getElementById('select-table').value;
+    const start = document.getElementById('book-start').value;
+    const end = document.getElementById('book-end').value;
+    const uname = document.getElementById('book-name').value.trim();
+    if(!tnum || !start || !end || !uname) return alert('Fill all fields');
+    // persist booking to restaurant
+    const restaurantsData = loadRestaurants();
+    const r = restaurantsData.find(rr=>rr.id===rest.id);
+    if(!r) return alert('Restaurant missing');
+    r.bookings = r.bookings || [];
+    r.bookings.push({tableNum:tnum, start, end, userName:uname, when: Date.now()});
+    // mark table as Booked
+    const t = r.tables.find(x=>x.num===tnum);
+    if(t) t.status = 'Booked';
+    saveRestaurants(restaurantsData);
+    restaurants = restaurantsData;
+    alert(`✅ Table ${tnum} booked from ${start} to ${end}`);
+    visitRestaurant(rest.id);
+  });
+}
+
+/* Render payment UI */
+function renderVisitPayment(rest){
+  const area = document.getElementById('visit-area');
+  const cart = sessionCart[rest.id] || [];
+  const total = cart.reduce((s,i)=>s + Number(i.price),0);
+
+  area.innerHTML = `
+    <h4>Payment for ${escapeHtml(rest.name)}</h4>
+    <div style="text-align:left">
+      <strong>Cart:</strong>
+      ${cart.length ? `<ul>${cart.map(c=>`<li>${escapeHtml(c.name)} — ₹${c.price}</li>`).join('')}</ul>` : '<p style="color:var(--muted)">Cart is empty</p>'}
+      <p><strong>Total: ₹${total}</strong></p>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-top:8px">
+      <button class="btn" id="pay-upi">UPI (Generate QR)</button>
+      <button class="btn" id="pay-card">Card (Simulate)</button>
+      <button class="btn secondary" id="pay-back">Back</button>
+    </div>
+    <div id="upi-qr" style="margin-top:12px;text-align:center"></div>
+  `;
+
+  document.getElementById('pay-back').addEventListener('click', ()=> visitRestaurant(rest.id));
+  document.getElementById('pay-card').addEventListener('click', ()=> simulatePayment(rest, 'CARD', total));
+
+  document.getElementById('pay-upi').addEventListener('click', ()=> {
+    if(total <= 0) return alert('Cart is empty');
+    
+    const upiId = "merchant@upi"; // replace with real merchant UPI ID
+    const name = rest.name;
+    const amount = total.toFixed(2);
+    const upiUrl = `upi://pay?pa=${upiId}&pn=${encodeURIComponent(name)}&am=${amount}&cu=INR`;
+
+    // generate QR code
+    const qrContainer = document.getElementById('upi-qr');
+    qrContainer.innerHTML = ''; // clear previous QR
+    new QRCode(qrContainer, {
+      text: upiUrl,
+      width: 180,
+      height: 180
+    });
+
+    alert(`Scan the QR to pay ₹${amount}`);
+    
+    // Optionally, after payment simulate recording income:
+    // simulatePayment(rest, 'UPI', total);
+  });
+}
+
+
+/* payment simulation: record income at restaurant and clear cart */
+function simulatePayment(rest, method, amount){
+  if(amount <= 0) return alert('No amount to pay');
+  const restaurantsData = loadRestaurants();
+  const r = restaurantsData.find(rr=>rr.id===rest.id);
+  if(!r) return alert('Restaurant missing');
+  r.incomes = r.incomes || [];
+  r.incomes.push(Number(amount));
+  saveRestaurants(restaurantsData);
+  // clear cart for this restaurant
+  sessionCart[rest.id] = [];
+  alert(`✅ Payment of ₹${amount} recorded via ${method}`);
+  visitRestaurant(rest.id);
+}
+
+/* Render visit feedback UI */
+function renderVisitFeedback(rest){
+  const area = document.getElementById('visit-area');
+  area.innerHTML = `
+    <h4>Give Feedback for ${escapeHtml(rest.name)}</h4>
+    <label>Your name</label><input id="fb-name" placeholder="Your name">
+    <label>Your feedback</label><textarea id="fb-text" placeholder="Write feedback..."></textarea>
+    <div style="display:flex;gap:8px;margin-top:8px">
+      <button class="btn" id="fb-send">Submit</button>
+      <button class="btn secondary" id="fb-back">Back</button>
+    </div>
+  `;
+  document.getElementById('fb-back').addEventListener('click', ()=> visitRestaurant(rest.id));
+  document.getElementById('fb-send').addEventListener('click', ()=>{
+    const name = document.getElementById('fb-name').value.trim();
+    const text = document.getElementById('fb-text').value.trim();
+    if(!name || !text) return alert('Enter name and feedback');
+    const restaurantsData = loadRestaurants();
+    const r = restaurantsData.find(rr=>rr.id===rest.id);
+    if(!r) return alert('Restaurant missing');
+    r.feedback = r.feedback || [];
+    r.feedback.push({ userName: name, text, when: Date.now() });
+    saveRestaurants(restaurantsData);
+    alert('Thanks for your feedback!');
+    visitRestaurant(rest.id);
+  });
+}
+
+/* ======= helpers ======= */
+function escapeHtml(s){
+  if(!s) return '';
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+/* ======= initial sync ======= */
+/* load data into memory at startup */
+restaurants = loadRestaurants();
+accounts = loadAccounts();
+
+/* Optional: simple demo data (uncomment to prefill) */
+// if(!restaurants.length){
+//   const rid = uid('rest');
+//   restaurants.push({ id: rid, name: 'Demo Diner', email: 'demo@diner.com', logo: `https://ui-avatars.com/api/?name=Demo+Diner&background=101827&color=fff`, menu:[{id:uid('dish'),name:'Masala Dosa',price:120}], tables:[{num:'1',status:'Available'}], bookings:[], incomes:[], feedback:[] });
+//   saveRestaurants(restaurants);
+// }
+
+/* ======= End of script ======= */
+</script>
+</body>
+</html>
